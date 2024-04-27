@@ -1,0 +1,15 @@
+spring:
+  #数据库连接信息
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: 'jdbc:mysql://rm-wz9g7fdg2z2j58d2u7o.mysql.rds.aliyuncs.com:3306/user_center?useSSL=false'
+    username: linyu_study
+    password: Ly203012
+  application:
+    name: user-center
+  # session 失效时间
+  session:
+    timeout: 86400
+
+
+
