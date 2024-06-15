@@ -1,9 +1,14 @@
 package com.linyu.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.linyu.model.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.linyu.model.request.UserCreateRequest;
+import com.linyu.model.request.UserUpdateRequest;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
 
 /**
  * 用户服务
@@ -43,4 +48,41 @@ public interface UserService extends IService<User> {
      * @return
      */
     int userLogout(HttpServletRequest request);
+
+    /**
+     * 管理员创建新用户
+     * @param createRequest
+     * @return
+     */
+    boolean createUser(UserCreateRequest createRequest);
+
+    /**
+     * 管理员更新用户
+     * @param updateRequest
+     * @return
+     */
+    boolean updateUser(UserUpdateRequest updateRequest);
+
+    /**
+     * 管理员删除id
+     * @param id
+     * @return
+     */
+    boolean deleteById(Long id);
+
+    /**
+     * 分页查询用户
+     * @param currentPage
+     * @param pageSize
+     * @return
+     */
+    IPage<User> getUsersByPage(int currentPage, int pageSize);
+
+    /**
+     * 根据id集合查询用户数据
+     * @param ids
+     * @return
+     */
+    List<User> getUsersByIds(List<Long> ids);
+
 }

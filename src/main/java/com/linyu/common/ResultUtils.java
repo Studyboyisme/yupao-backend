@@ -47,7 +47,7 @@ public class ResultUtils {
      * @return
      */
     public static BaseResponse error(ErrorCode errorCode, String description){
-        return new BaseResponse(errorCode.getCode(), errorCode.getMessage(), description);
+        return new BaseResponse(errorCode.getCode(),null, errorCode.getMessage(), description);
     }
 
 

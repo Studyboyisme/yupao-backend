@@ -1,15 +1,19 @@
 package com.linyu.service;
 
 import com.linyu.model.User;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Arrays;
+import java.util.List;
 import javax.annotation.Resource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@Slf4j
 public class UserServiceTest {
 
     @Resource
@@ -65,5 +69,16 @@ public class UserServiceTest {
         userAccount = "marry";
         result = userService.userRegister(userAccount, userPassword, checkPassword, planetCode);
         Assertions.assertTrue(result > 0);
+    }
+
+    /**
+     * 测试根据id集合查询数据
+     */
+    @Test
+    void testGetUsersByIds(){
+        List<Long> ids = Arrays.asList(4L, 8L, 9L);
+        List<User> users = userService.getUsersByIds(ids);
+        assertFalse(users.isEmpty());
+        users.forEach(user -> log.info(user.toString()));
     }
 }

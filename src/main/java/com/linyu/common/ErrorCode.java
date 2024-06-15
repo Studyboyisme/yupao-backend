@@ -14,14 +14,15 @@ public enum ErrorCode {
     NOT_AUTH(40101, "无权限", ""),
     SYSTEM_ERROR(50000, "系统内部异常", "");
 
+
+    private final int code;
     /**
      * 状态码信息
      */
-    private final int code;
+    private final String message;
     /**
      * 状态码描述（详情）
      */
-    private final String message;
     private final String description;
 
     ErrorCode(int code, String message, String description) {
