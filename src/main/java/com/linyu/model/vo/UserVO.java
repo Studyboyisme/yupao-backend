@@ -1,23 +1,20 @@
-package com.linyu.model;
+package com.linyu.model.vo;
 
-import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
- * 用户
- * @TableName user
+ * 用户包装类（脱敏）
  */
-@TableName(value ="user")
 @Data
-public class User implements Serializable {
+public class UserVO implements Serializable {
+    
     /**
      * id
      */
-    @TableId(type = IdType.AUTO)
-    private Long id;
+    private long id;
 
     /**
      * 用户昵称
@@ -40,11 +37,6 @@ public class User implements Serializable {
     private Integer gender;
 
     /**
-     * 密码
-     */
-    private String userPassword;
-
-    /**
      * 电话
      */
     private String phone;
@@ -55,7 +47,12 @@ public class User implements Serializable {
     private String email;
 
     /**
-     * 状态 0-正常
+     * 标签列表 json
+     */
+    private String tags;
+
+    /**
+     * 状态 0 - 正常
      */
     private Integer userStatus;
 
@@ -65,28 +62,12 @@ public class User implements Serializable {
     private Date createTime;
 
     /**
-     * 更新时间
+     * 
      */
     private Date updateTime;
 
     /**
-     * 是否删除
-     */
-    @TableLogic
-    private Integer isDelete;
-
-    /**
-     * 标签
-     */
-    private String tags;
-
-    /**
-     * 简介
-     */
-    private String profile;
-
-    /**
-     * 用户角色 0-普通用户 1-管理员
+     * 用户角色 0 - 普通用户 1 - 管理员
      */
     private Integer userRole;
 
@@ -95,6 +76,5 @@ public class User implements Serializable {
      */
     private String planetCode;
 
-    @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

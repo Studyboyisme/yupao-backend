@@ -2,6 +2,7 @@ package com.linyu.service;
 
 import com.linyu.model.User;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -80,5 +81,12 @@ public class UserServiceTest {
         List<User> users = userService.getUsersByIds(ids);
         assertFalse(users.isEmpty());
         users.forEach(user -> log.info(user.toString()));
+    }
+
+    @Test
+    void testSearchUsersByTags(){
+        List<String> tagNameList = Arrays.asList("Java", "Python");
+        List<User> userList = userService.searchUsersByTags(tagNameList);
+        Assert.assertNotNull(userList);
     }
 }

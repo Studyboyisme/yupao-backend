@@ -61,7 +61,7 @@ public interface UserService extends IService<User> {
      * @param updateRequest
      * @return
      */
-    boolean updateUser(UserUpdateRequest updateRequest);
+//    boolean updateUser(UserUpdateRequest updateRequest);
 
     /**
      * 管理员删除id
@@ -84,5 +84,41 @@ public interface UserService extends IService<User> {
      * @return
      */
     List<User> getUsersByIds(List<Long> ids);
+
+    /**
+     * 根据标签搜索用户
+     * @param tagNameList
+     * @return
+     */
+    List<User> searchUsersByTags(List<String> tagNameList);
+
+    /**
+     * 用户信息修改
+     * @param user
+     * @param loginUser
+     * @return
+     */
+    int updateUser(User user, User loginUser);
+
+    /**
+     * 获取当前用户信息
+     * @param request
+     * @return
+     */
+    User getLoginUser(HttpServletRequest request);
+
+    /**
+     * 是否为管理员
+     * @param request
+     * @return
+     */
+    boolean isAdmin(HttpServletRequest request);
+
+    /**
+     * 是否为管理员
+     * @param user
+     * @return
+     */
+    boolean isAdmin(User user);
 
 }

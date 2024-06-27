@@ -2,6 +2,7 @@ package com.linyu.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.linyu.common.BaseResponse;
 import com.linyu.common.ErrorCode;
 import com.linyu.common.ResultUtils;
@@ -12,14 +13,22 @@ import com.linyu.model.request.UserLoginRequest;
 import com.linyu.model.request.UserRegisterRequest;
 import com.linyu.model.request.UserUpdateRequest;
 import com.linyu.service.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.linyu.constant.UserConstant.ADMIN_ROLE;
@@ -28,15 +37,21 @@ import static com.linyu.constant.UserConstant.USER_LOGIN_STATE;
 @RestController
 @RequestMapping("/user")
 @Slf4j
+@Api(tags = "用户中心接口")
+@CrossOrigin(origins = {"http://localhost:5173/"}, allowCredentials = "true")
 public class UserController {
     @Resource
     private UserService userService;
+
+    @Resource
+    private RedisTemplate redisTemplate;
 
     /**
      * 用户注册
      * @param userRegisterRequest
      * @return
      */
+    @ApiOperation("用户注册")
     @PostMapping("/register")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest){
         if(userRegisterRequest == null){
@@ -184,18 +199,18 @@ public class UserController {
      * @param request
      * @return
      */
-    @PostMapping("/update")
-    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest updateRequest, HttpServletRequest request){
-        //权限校验，确保是管理员操作
-        if(!isAdmin(request)){
-            throw new BusinessException(ErrorCode.NOT_AUTH);
-        }
-        if(updateRequest == null){
-            throw new BusinessException(ErrorCode.NULL_ERROR);
-        }
-        boolean result = userService.updateUser(updateRequest);
-        return ResultUtils.success(result);
-    }
+//    @PostMapping("/update")
+//    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest updateRequest, HttpServletRequest request){
+//        //权限校验，确保是管理员操作
+//        if(!isAdmin(request)){
+//            throw new BusinessException(ErrorCode.NOT_AUTH);
+//        }
+//        if(updateRequest == null){
+//            throw new BusinessException(ErrorCode.NULL_ERROR);
+//        }
+//        boolean result = userService.updateUser(updateRequest);
+//        return ResultUtils.success(result);
+//    }
 
     /**
      * 管理员删除用户信息
@@ -292,6 +307,56 @@ public class UserController {
         return ResultUtils.success(usersByPage);
     }
 
+    @ApiOperation("根据标签查询用户")
+    @GetMapping("/search/tags")
+    public BaseResponse<List<User>> searchUsersByTags(@RequestParam(required = false) List<String> tagNameList){
+        if(CollectionUtils.isEmpty(tagNameList)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        List<User> userList = userService.searchUsersByTags(tagNameList);
+        return ResultUtils.success(userList);
+    }
+
+    /**
+     * 推荐页面
+     * @param request
+     * @return
+     */
+    @ApiOperation("推荐用户信息")
+    @GetMapping("/recommend")
+    public BaseResponse<Page<User>> recommendUsers(long pageSize,long pageNum, HttpServletRequest request){
+        User loginUser = userService.getLoginUser(request);
+        String redisKey = String.format("rain:user:recommend:%s", loginUser.getId());
+        ValueOperations valueOperations = redisTemplate.opsForValue();
+        //如果有缓存，直接读取
+        Page<User> userPage = (Page<User>) valueOperations.get(redisKey);
+        if(userPage != null){
+            return ResultUtils.success(userPage);
+        }
+        //无缓存，查数据库
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        userPage = userService.page(new Page<>(pageNum, pageSize), queryWrapper);
+        //写缓存，30s过期
+        try {
+            valueOperations.set(redisKey, userPage, 30000, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            log.info("redis set key error", e);
+        }
+        return ResultUtils.success(userPage);
+    }
+
+    @PostMapping("/update")
+    public BaseResponse<Integer> updateUser(@RequestBody User user, HttpServletRequest request){
+        //验证参数是否为空
+        if(user == null){
+            throw new BusinessException(ErrorCode.NULL_ERROR);
+        }
+        //鉴权
+        User loginUser = userService.getLoginUser(request);
+        int result = userService.updateUser(user, loginUser);
+        return ResultUtils.success(result);
+    }
+
     /**
      * 是否是管理员
      * @param request
@@ -309,5 +374,6 @@ public class UserController {
         }
         return true;
     }
+
 
 }
