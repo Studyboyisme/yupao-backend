@@ -1,12 +1,9 @@
 package com.linyu.model.dto;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.linyu.model.request.PageRequest;
+import com.linyu.common.PageRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
+import java.util.List;
 import java.util.Date;
 
 @EqualsAndHashCode(callSuper = true)
@@ -16,6 +13,11 @@ public class TeamQuery extends PageRequest {
      * id
      */
     private Long id;
+
+    /**
+     * id列表
+     */
+    private List<Long> idList;
 
     /**
      * 队伍名称

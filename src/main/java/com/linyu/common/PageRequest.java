@@ -1,4 +1,4 @@
-package com.linyu.model.request;
+package com.linyu.common;
 
 import lombok.Data;
 

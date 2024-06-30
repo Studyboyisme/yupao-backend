@@ -357,7 +357,15 @@ public class UserController {
         return ResultUtils.success(result);
     }
 
-    /**
+    @GetMapping("/match")
+    public BaseResponse<List<User>> matchUsers(long num, HttpServletRequest request) {
+        if (num <= 0 || num > 20) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = userService.getLoginUser(request);
+        return ResultUtils.success(userService.matchUsers(num, user));
+    }
+        /**
      * 是否是管理员
      * @param request
      * @return
