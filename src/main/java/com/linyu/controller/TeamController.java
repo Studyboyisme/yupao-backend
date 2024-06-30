@@ -95,6 +95,18 @@ public class TeamController {
         return ResultUtils.success(team);
     }
 
+    //将显示队伍人数的代码抽取成一个方法，减少代码量
+    public List<TeamUserVO> solveList(List<TeamUserVO> teamList){
+        final List<Long> teamIdList = teamList.stream().map(TeamUserVO::getId).collect(Collectors.toList());
+        QueryWrapper<UserTeam> userTeamJoinQueryWrapper = new QueryWrapper<>();
+        userTeamJoinQueryWrapper.in("teamId", teamIdList);
+        List<UserTeam> userTeamList = userTeamService.list(userTeamJoinQueryWrapper);
+        //队伍id => 加入这个队伍的用户列表
+        Map<Long, List<UserTeam>> teamIdUserTeamList = userTeamList.stream().collect(Collectors.groupingBy(UserTeam::getTeamId));
+        teamList.forEach(team -> team.setHasJoinNum(teamIdUserTeamList.getOrDefault(team.getId(), new ArrayList<>()).size()));
+        return teamList;
+    }
+
     @GetMapping("/list")
     public BaseResponse<List<TeamUserVO>> listTeams(TeamQuery teamQuery, HttpServletRequest request){
         if(teamQuery == null){
@@ -119,13 +131,8 @@ public class TeamController {
             });
         }catch (Exception e){}
         //3. 查询已加入队伍的人数
-        QueryWrapper<UserTeam> userTeamJoinQueryWrapper = new QueryWrapper<>();
-        userTeamJoinQueryWrapper.in("teamId", teamIdList);
-        List<UserTeam> userTeamList = userTeamService.list(userTeamJoinQueryWrapper);
-        //队伍id => 加入这个队伍的用户列表
-        Map<Long, List<UserTeam>> teamIdUserTeamList = userTeamList.stream().collect(Collectors.groupingBy(UserTeam::getTeamId));
-        teamList.forEach(team -> team.setHasJoinNum(teamIdUserTeamList.getOrDefault(team.getId(), new ArrayList<>()).size()));
-        return ResultUtils.success(teamList);
+        List<TeamUserVO> teamListResult = solveList(teamList);
+        return ResultUtils.success(teamListResult);
     }
 
     /**
@@ -143,7 +150,9 @@ public class TeamController {
         boolean isAdmin = userService.isAdmin(request);
         teamQuery.setUserId(loginUser.getId());
         List<TeamUserVO> teamList = teamService.listTeams(teamQuery, isAdmin);
-        return ResultUtils.success(teamList);
+        //3. 查询已加入队伍的人数
+        List<TeamUserVO> teamListResult = solveList(teamList);
+        return ResultUtils.success(teamListResult);
     }
 
     @GetMapping("/list/my/join")
@@ -155,13 +164,19 @@ public class TeamController {
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userId", loginUser.getId());
         List<UserTeam> userTeamList = userTeamService.list(queryWrapper);
-        //取出不重复的队伍 id
+        //1. 取出不重复的队伍 id
         //todo 这一步需要认真琢磨
         Map<Long, List<UserTeam>> listMap = userTeamList.stream().collect(Collectors.groupingBy(UserTeam::getTeamId));
         ArrayList<Long> idList = new ArrayList<>(listMap.keySet());
         teamQuery.setIdList(idList);
         List<TeamUserVO> teamList = teamService.listTeams(teamQuery, true);
-        return ResultUtils.success(teamList);
+        //2. 得到结果teamList后，设置hasJoin属性为true,表示为已加入
+        teamList.forEach(team -> {
+            team.setHasJoin(true);
+        });
+        //3. 查询已加入队伍的人数
+        List<TeamUserVO> teamListResult = solveList(teamList);
+        return ResultUtils.success(teamListResult);
     }
 
 
