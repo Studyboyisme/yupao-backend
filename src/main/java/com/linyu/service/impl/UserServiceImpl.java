@@ -15,9 +15,10 @@ import com.linyu.model.request.UserUpdateRequest;
 import com.linyu.service.UserService;
 import com.linyu.mapper.UserMapper;
 import com.linyu.utils.AlgorithmUtils;
-import javafx.util.Pair;
+//import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.util.Pair;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -382,7 +383,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public int updateUser(User user, User loginUser) {
-        Long userId = user.getId();
+        //注意Long类型和long类型，如果是包装类Long，则比较相等的时候要实用equals方法
+        long userId = user.getId();
         if(userId <= 0){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }

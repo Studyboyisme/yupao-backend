@@ -6,7 +6,7 @@ spring:
     username: root
     password: 123456
   application:
-    name: user-center
+    name: yupao
   # session 失效时间
   session:
     timeout: 86400
@@ -17,8 +17,9 @@ spring:
   # redis配置
   redis:
     port: 6379
-    host: localhost
-    database: 1
+#    host: localhost
+    host: 1.12.222.177
+    database: 3
     password: 123456
   # 设置当前环境为dev
   profiles:
@@ -30,6 +31,8 @@ server:
     session:
       cookie:
         domain: localhost
+        same-site: lax
+        secure: false
 
 mybatis-plus:
   configuration:

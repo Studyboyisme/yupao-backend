@@ -38,7 +38,7 @@ import static com.linyu.constant.UserConstant.USER_LOGIN_STATE;
 @RequestMapping("/user")
 @Slf4j
 @Api(tags = "用户中心接口")
-@CrossOrigin(origins = {"http://localhost:5173/"}, allowCredentials = "true")
+//@CrossOrigin(origins = {"http://localhost:5173/"}, allowCredentials = "true")
 public class UserController {
     @Resource
     private UserService userService;
@@ -63,7 +63,6 @@ public class UserController {
         String checkPassword = userRegisterRequest.getCheckPassword();
         String planetCode = userRegisterRequest.getPlanetCode();
         if(StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, planetCode)){
-//            return null;
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         long result = userService.userRegister(userAccount, userPassword, checkPassword, planetCode);

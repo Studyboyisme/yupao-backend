@@ -46,7 +46,7 @@ import javax.xml.transform.Result;
 @RequestMapping("/team")
 @Slf4j
 @Api(tags = "队伍接口")
-@CrossOrigin(origins = {"http://localhost:5173/"}, allowCredentials = "true")
+//@CrossOrigin(origins = {"http://localhost:5173/"}, allowCredentials = "true")
 public class TeamController {
     @Resource
     private UserService userService;
@@ -169,6 +169,12 @@ public class TeamController {
         Map<Long, List<UserTeam>> listMap = userTeamList.stream().collect(Collectors.groupingBy(UserTeam::getTeamId));
         ArrayList<Long> idList = new ArrayList<>(listMap.keySet());
         teamQuery.setIdList(idList);
+        //特殊情况处理
+        //问题：新用户还没有加入队伍查看时会显示所有队伍数据 解决：在这里直接返回，不调用listTeams方法
+        if(idList.size() == 0){
+            List<TeamUserVO> specialList = new ArrayList<>();
+            return ResultUtils.success(specialList);
+        }
         List<TeamUserVO> teamList = teamService.listTeams(teamQuery, true);
         //2. 得到结果teamList后，设置hasJoin属性为true,表示为已加入
         teamList.forEach(team -> {
